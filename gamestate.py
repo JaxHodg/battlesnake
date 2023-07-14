@@ -1,9 +1,9 @@
 from math import inf
 import json
-from const import Direction
+from const import MOVES
 
 
-def move_snake(game_state: dict, snake: dict, move: Direction) -> dict:
+def move_snake(game_state: dict, snake: dict, move: list) -> dict:
     '''
     parameter:
         game state: dictionary of game metadata (snake locations)
@@ -20,7 +20,7 @@ def move_snake(game_state: dict, snake: dict, move: Direction) -> dict:
     if snake['head']['y'] < 0 or snake['head']['y'] > game_state['board']['height']:
         raise Exception("Out of bounds")
 
-    snake["body"] = snake['head'] + snake["body"][:-1]
+    snake["body"] = [snake['head']].append((snake["body"][:-1]))
 
     return game_state
 
@@ -40,8 +40,7 @@ def score_game_board(game_state: dict) -> dict:
 
     return snake_to_score
 
-
-def rec_find_move(game_state: dict, snakes: list):
+def rec_find_move(game_state: dict, snakes: list, possible_moves: list):
     '''
     parameter:
         game state: dictionary of game metadata (snake locations)
@@ -58,7 +57,7 @@ def rec_find_move(game_state: dict, snakes: list):
     best_move_arr = []
     best_move_score = -inf
 
-    for move in Direction:
+    for move in possible_moves:
         move_arr, move_score = rec_find_move(
             move_snake(game_state, curr_snake, move),
             snakes[1:]
@@ -78,5 +77,8 @@ def rec_find_move(game_state: dict, snakes: list):
 
 with open('move.json', 'r') as f:
     game_state = json.load(f)
+
+
+possible_moves = MOVES
 
 rec_find_move(game_state, game_state['board']['snakes'] * 5)
