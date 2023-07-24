@@ -33,16 +33,64 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
 
 def score_game_board(game_state: dict) -> dict:
     '''
-    parameter:
+    parameter:          
         game state: dictionary of game metadata (snake locations)
 
     returns map of snake IDs to a score
     '''
 
-    snake_to_score = dict()
+    # Flood Fill Algo?
+    W = game_state['board']['width']
+    H = game_state['board']['height']
+
+    board = [[""] * W] * H
+
+    q = list()
 
     for snake in game_state['board']['snakes']:
-        snake_to_score[snake['id']] = snake['length']
+        # Adds head to queue
+        q.append(snake['head'] | {'id': snake['id']})
+
+        # Marks area where snake sits as controlled
+        for b in snake['body']:
+            board[b['x']][b['y']] = snake['id']
+
+    def is_valid(x, y):
+        if x < 0 or W <= x:
+            return False
+        if y < 0 or H <= y:
+            return False
+        if board[x][y] != '':
+            return False
+        return True
+
+    # Loops through snake moves until board filled
+    while q:
+        cur_coord = q.pop(0)
+        x = cur_coord['x']
+        y = cur_coord['y']
+        id = cur_coord['id']
+
+        board[x][y] = id
+
+        if is_valid(x + 1, y):
+            q.append({'id': id, 'x': x + 1, 'y': y})
+
+        if is_valid(x - 1, y):
+            q.append({'id': id, 'x': x - 1, 'y': y})
+
+        if is_valid(x, y + 1):
+            q.append({'id': id, 'x': x, 'y': y + 1})
+
+        if is_valid(x, y - 1):
+            q.append({'id': id, 'x': x, 'y': y - 1})
+
+    snake_to_score = dict()
+    for i in board:
+        for j in i:
+            if j not in snake_to_score:
+                snake_to_score[j] = 0
+            snake_to_score[j] += 1
 
     return snake_to_score
 
@@ -62,7 +110,7 @@ def rec_find_move(game_state: dict, next_snake: list):
     snake_id = next_snake[0]
 
     best_move_arr = []
-    best_move_score = -inf
+    best_move_score = None
 
     for move in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
         move_arr, move_score = rec_find_move(
@@ -71,8 +119,8 @@ def rec_find_move(game_state: dict, next_snake: list):
         )
 
         # Assume every snake chooses best move for them
-        if move_score[snake_id] > best_move_score:
-            best_move_score = move_score[snake_id]
+        if not best_move_score or move_score[snake_id] > best_move_score[snake_id]:
+            best_move_score = move_score
             best_move_arr = [(snake_id, move)] + move_arr
 
     return (best_move_arr, best_move_score)
@@ -80,11 +128,18 @@ def rec_find_move(game_state: dict, next_snake: list):
 
 # General Algo:
 #   Recurse through every snake's possible moves
-#
+def find_move(game_state):
+    snake_ids = [snake['id'] for snake in game_state['board']['snakes']]
 
-with open('move.json', 'r') as f:
-    game_state = json.load(f)
+    res = rec_find_move(game_state, snake_ids)
 
-snake_ids = [snake['id'] for snake in game_state['board']['snakes']]
+    move_to_text = {
+        (0, 1): 'up',
+        (0, -1): 'down',
+        (1, 0): 'right',
+        (-1, 0): 'left'
+    }
 
-rec_find_move(game_state, snake_ids * 5)
+    for move in res[0]:
+        if move[0] == game_state['you']['id']:
+            return move_to_text(move[1])
