@@ -19,6 +19,14 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
             snake['head']['x'] += move[0]
             snake['head']['y'] += move[1]
 
+            snake['health'] -= 1
+            if snake['head'] in snake['board']['food']:
+                snake['health'] = 100
+                snake['board']['food'].remove(snake['head'])
+
+            if snake['health'] < 5:
+                raise Exception("Out of health")
+
             if snake['head']['x'] < 0 or snake['head']['x'] > game_state['board']['width']:
                 raise Exception("Out of bounds")
             if snake['head']['y'] < 0 or snake['head']['y'] > game_state['board']['height']:
@@ -113,10 +121,13 @@ def rec_find_move(game_state: dict, next_snake: list):
     best_move_score = None
 
     for move in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-        move_arr, move_score = rec_find_move(
-            move_snake(game_state, snake_id, move),
-            next_snake[1:]
-        )
+        try:
+            move_arr, move_score = rec_find_move(
+                move_snake(game_state, snake_id, move),
+                next_snake[1:]
+            )
+        except:
+            pass
 
         # Assume every snake chooses best move for them
         if not best_move_score or move_score[snake_id] > best_move_score[snake_id]:
