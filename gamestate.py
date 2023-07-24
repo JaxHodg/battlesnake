@@ -32,9 +32,9 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
             if snake['health'] < 5:
                 raise Exception("Out of health")
 
-            if snake['head']['x'] < 0 or snake['head']['x'] > game_state['board']['width']:
+            if snake['head']['x'] < 0 or snake['head']['x'] >= game_state['board']['width']:
                 raise Exception("Out of bounds")
-            if snake['head']['y'] < 0 or snake['head']['y'] > game_state['board']['height']:
+            if snake['head']['y'] < 0 or snake['head']['y'] >= game_state['board']['height']:
                 raise Exception("Out of bounds")
 
             snake["body"] = \
@@ -148,10 +148,14 @@ def rec_find_move(game_state: dict, next_snake: list):
 # General Algo:
 #   Recurse through every snake's possible moves
 def find_move(game_state):
-    snake_ids = [game_state['you']['id']] + [snake['id']
-                                             for snake in game_state['board']['snakes']]
+    self_id = game_state['you']['id']
+    snake_ids = [self_id]
+    for snake in game_state['board']['snakes']:
+        if snake['id'] == self_id:
+            continue
+        snake_ids.append(snake['id'])
 
-    res = rec_find_move(game_state, snake_ids * 3)
+    res = rec_find_move(game_state, snake_ids * 4)
 
     print(res)
 
