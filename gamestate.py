@@ -126,13 +126,13 @@ def rec_find_move(game_state: dict, next_snake: list):
                 move_snake(game_state, snake_id, move),
                 next_snake[1:]
             )
+
+            # Assume every snake chooses best move for them
+            if not best_move_score or move_score[snake_id] > best_move_score[snake_id]:
+                best_move_score = move_score
+                best_move_arr = [(snake_id, move)] + move_arr
         except:
             pass
-
-        # Assume every snake chooses best move for them
-        if not best_move_score or move_score[snake_id] > best_move_score[snake_id]:
-            best_move_score = move_score
-            best_move_arr = [(snake_id, move)] + move_arr
 
     return (best_move_arr, best_move_score)
 
