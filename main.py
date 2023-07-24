@@ -47,7 +47,7 @@ def end(game_state: typing.Dict):
 def move(game_state: typing.Dict) -> typing.Dict:
 
     # Choose a random move from the safe ones
-    next_move = game_state.find_move(game_state)
+    next_move = gamestate.find_move(game_state)
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
