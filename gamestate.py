@@ -1,10 +1,9 @@
 import json
 from collections import defaultdict
-import traceback
 from copy import deepcopy
 
 
-def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
+def move_snake(old_game_state: dict, snake_id: int, move: tuple) -> dict:
     '''
     parameter:
         game state: dictionary of game metadata (snake locations)
@@ -13,6 +12,9 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
 
     returns updated game_state
     '''
+
+    game_state = deepcopy(old_game_state)
+
     if not move in {(0, 1), (1, 0), (0, -1), (-1, 0)}:
         raise Exception("Invalid Move")
 
@@ -30,7 +32,7 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
 
             if len(snake['body']) >= 2 and snake['head'] == snake['body'][1]:
                 raise Exception("Hit Neck")
-            
+
             if tuple(snake['head'].values()) in hazards:
                 raise Exception("Hit Hazard")
 
@@ -51,7 +53,7 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
                 [{'x': snake['head']['x'], 'y': snake['head']['y']}] + \
                 snake["body"][:-1]
 
-        return game_state
+            return game_state
 
 
 def score_game_board(game_state: dict) -> dict:
@@ -169,25 +171,20 @@ def rec_find_move(game_state: dict, next_snake: list):
 
     for move in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
         try:
-            move_arr, move_score = rec_find_move(
-                move_snake(deepcopy(game_state), snake_id, move),
-                next_snake[1:]
-            )
+            new_game_state = move_snake(game_state, snake_id, move)
+        except:
+            continue
 
-            # Assume every snake chooses best move for them
-            if move_score[snake_id] > best_move_score[snake_id]:
-                best_move_score = move_score
-                best_move_arr = [(snake_id, move)] + move_arr
-        except Exception as e:
-            print(repr(e))
-            # print(traceback.format_exc())
-            pass
+        move_arr, move_score = rec_find_move(new_game_state, next_snake[1:])
+
+        # Assume every snake chooses best move for them
+        if move_score[snake_id] > best_move_score[snake_id]:
+            best_move_score = move_score
+            best_move_arr = [(snake_id, move)] + move_arr
 
     return (best_move_arr, best_move_score)
 
 
-# General Algo:
-#   Recurse through every snake's possible moves
 def find_move(game_state):
     self_id = game_state['you']['id']
     snake_ids = [self_id]
@@ -198,7 +195,7 @@ def find_move(game_state):
 
     print(snake_ids)
 
-    res = rec_find_move(game_state, snake_ids * 3)
+    res = rec_find_move(game_state, snake_ids * 1)
 
     print(res)
 
