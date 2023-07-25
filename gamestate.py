@@ -16,6 +16,13 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
     if not move in {(0, 1), (1, 0), (0, -1), (-1, 0)}:
         raise Exception("Invalid Move")
 
+    hazards = set()
+    for h in game_state['board']['hazards']:
+        hazards.add(tuple(h.values()))
+    for snake in game_state['board']['snakes']:
+        for b in snake['body']:
+            hazards.add(tuple(b.values()))
+
     for snake in game_state['board']['snakes']:
         if snake['id'] == snake_id:
             snake['head']['x'] += move[0]
@@ -23,6 +30,9 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
 
             if len(snake['body']) >= 2 and snake['head'] == snake['body'][1]:
                 raise Exception("Hit Neck")
+            
+            if tuple(snake['head'].values()) in hazards:
+                raise Exception("Hit Hazard")
 
             snake['health'] -= 1
             if snake['head'] in game_state['board']['food']:
@@ -32,9 +42,9 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
             if snake['health'] < 5:
                 raise Exception("Out of health")
 
-            if snake['head']['x'] < 0 or snake['head']['x'] >= game_state['board']['width']:
+            if snake['head']['x'] < 0 or game_state['board']['width'] <= snake['head']['x']:
                 raise Exception("Out of bounds")
-            if snake['head']['y'] < 0 or snake['head']['y'] >= game_state['board']['height']:
+            if snake['head']['y'] < 0 or game_state['board']['height'] <= snake['head']['y']:
                 raise Exception("Out of bounds")
 
             snake["body"] = \
@@ -45,6 +55,21 @@ def move_snake(game_state: dict, snake_id: int, move: tuple) -> dict:
 
 
 def score_game_board(game_state: dict) -> dict:
+    snake_flood_score = get_flood_score(game_state)
+    snake_length_score = get_length_score(game_state)
+
+    snake_to_score = defaultdict(float)
+
+    for k, v in snake_flood_score.items():
+        snake_to_score[k] += v
+
+    for k, v in snake_length_score.items():
+        snake_to_score[k] += v
+
+    return snake_to_score
+
+
+def get_flood_score(game_state: dict) -> dict:
     '''
     parameter:          
         game state: dictionary of game metadata (snake locations)
@@ -98,12 +123,29 @@ def score_game_board(game_state: dict) -> dict:
         if is_valid(x, y - 1):
             q.append({'id': id, 'x': x, 'y': y - 1})
 
-    snake_to_score = defaultdict(int)
+    snake_to_score = defaultdict(float)
     for i in board:
         for j in i:
             if j == '':
                 continue
             snake_to_score[j] += 1
+
+    total = sum(snake_to_score.values())
+    for i in snake_to_score:
+        snake_to_score[i] /= total
+
+    return snake_to_score
+
+
+def get_length_score(game_state: dict) -> dict:
+    snake_to_score = defaultdict(float)
+
+    for snake in game_state['board']['snakes']:
+        snake_to_score[snake['id']] = snake['length']
+
+    total = sum(snake_to_score.values())
+    for i in snake_to_score:
+        snake_to_score[i] /= total
 
     return snake_to_score
 
@@ -123,7 +165,7 @@ def rec_find_move(game_state: dict, next_snake: list):
     snake_id = next_snake[0]
 
     best_move_arr = []
-    best_move_score = defaultdict(int)
+    best_move_score = defaultdict(float)
 
     for move in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
         try:
@@ -136,9 +178,8 @@ def rec_find_move(game_state: dict, next_snake: list):
             if move_score[snake_id] > best_move_score[snake_id]:
                 best_move_score = move_score
                 best_move_arr = [(snake_id, move)] + move_arr
-        except:
-            # Exception as e:
-            # print(repr(e))
+        except Exception as e:
+            print(repr(e))
             # print(traceback.format_exc())
             pass
 
@@ -155,7 +196,9 @@ def find_move(game_state):
             continue
         snake_ids.append(snake['id'])
 
-    res = rec_find_move(game_state, snake_ids * 4)
+    print(snake_ids)
+
+    res = rec_find_move(game_state, snake_ids * 3)
 
     print(res)
 
