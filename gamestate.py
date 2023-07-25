@@ -195,7 +195,7 @@ def find_move(game_state):
 
     print(snake_ids)
 
-    res = rec_find_move(game_state, snake_ids * 1)
+    res = rec_find_move(game_state, snake_ids * 3)
 
     print(res)
 
