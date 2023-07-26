@@ -12,6 +12,8 @@
 
 import random
 import typing
+from const import MOVES
+from filter_bad_moves import filter_bad_moves
 
 import gamestate
 

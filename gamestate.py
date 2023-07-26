@@ -196,8 +196,7 @@ def get_length_score(game_state: dict) -> dict:
 
     return snake_to_score
 
-
-def rec_find_move(game_state: dict, next_snake: list):
+def rec_find_move(game_state: dict, snakes: list, possible_moves: list):
     '''
     parameter:
         game state: full json dict of game data
@@ -205,12 +204,11 @@ def rec_find_move(game_state: dict, next_snake: list):
 
     returns tuple of (list of moves, best score dict possible in tree)
     '''
-
     # Base case
     if not next_snake:
         return ([], score_game_board(game_state))
 
-    snake_id = next_snake[0]
+    curr_snake = snakes[0]
 
     best_move_arr = []
     best_move_score = defaultdict(float)
@@ -272,6 +270,6 @@ def find_move(game_state):
         if move[0] == self_id:
             return move_to_text[move[1]]
 
+possible_moves = MOVES
 
-# with open('move.json') as f:
-#    print(find_move(json.load(f)))
+rec_find_move(game_state, game_state['board']['snakes'] * 5)
