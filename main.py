@@ -15,6 +15,8 @@ import typing
 from const import MOVES
 from filter_bad_moves import filter_bad_moves
 
+import gamestate
+
 
 # info is called when you create your Battlesnake on play.battlesnake.com
 # and controls your Battlesnake's appearance
@@ -46,19 +48,8 @@ def end(game_state: typing.Dict):
 # See https://docs.battlesnake.com/api/example-move for available data
 def move(game_state: typing.Dict) -> typing.Dict:
 
-    possible_moves = MOVES
-
-    possible_moves = filter_bad_moves(game_state['you']['body'], possible_moves, game_state['board'])
-
-    if len(possible_moves) == 0:
-        print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
-        return {"move": "down"}
-
     # Choose a random move from the safe ones
-    next_move = random.choice(possible_moves)['move']
-
-    # TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
-    # food = game_state['board']['food']
+    next_move = gamestate.find_move(game_state)
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
