@@ -1,9 +1,11 @@
 import json
 from collections import defaultdict
 from copy import deepcopy
+from const import MOVES
+from filter_bad_moves import filter_bad_moves
 
 
-def move_snake(old_game_state: dict, snake_id: str, move: tuple) -> dict:
+def move_snake(old_game_state: dict, snake_id: str, move: dict) -> dict:
     '''
     parameter:
         old_game_state: full json dict of game data
@@ -15,10 +17,6 @@ def move_snake(old_game_state: dict, snake_id: str, move: tuple) -> dict:
 
     # Copies state
     game_state = deepcopy(old_game_state)
-
-    # Verifies actual move
-    if not move in {(0, 1), (1, 0), (0, -1), (-1, 0)}:
-        raise Exception("Invalid Move")
 
     # Creates set of coords on board that cause death
     hazards = set()
@@ -32,8 +30,7 @@ def move_snake(old_game_state: dict, snake_id: str, move: tuple) -> dict:
     for snake in game_state['board']['snakes']:
         if snake['id'] == snake_id:
             # Moves snake's head
-            snake['head']['x'] += move[0]
-            snake['head']['y'] += move[1]
+            snake['head'] = move['transform'](snake['head'])
 
             # Verifies head not in neck
             if len(snake['body']) >= 2 and snake['head'] == snake['body'][1]:
@@ -151,17 +148,23 @@ def get_flood_score(game_state: dict) -> dict:
 
         board[x][y] = id
 
-        if is_valid(x + 1, y):
-            q.append({'id': id, 'x': x + 1, 'y': y})
+        valid_moves = filter_bad_moves(id, {'x':x, 'y':y}, MOVES, game_state['board'])
 
-        if is_valid(x - 1, y):
-            q.append({'id': id, 'x': x - 1, 'y': y})
+        for move in valid_moves:
+            q.append(move['transform']({'x':x, 'y':y}))
+            q[-1]['id'] = id
 
-        if is_valid(x, y + 1):
-            q.append({'id': id, 'x': x, 'y': y + 1})
+        # if is_valid(x + 1, y):
+        #     q.append({'id': id, 'x': x + 1, 'y': y})
 
-        if is_valid(x, y - 1):
-            q.append({'id': id, 'x': x, 'y': y - 1})
+        # if is_valid(x - 1, y):
+        #     q.append({'id': id, 'x': x - 1, 'y': y})
+
+        # if is_valid(x, y + 1):
+        #     q.append({'id': id, 'x': x, 'y': y + 1})
+
+        # if is_valid(x, y - 1):
+        #     q.append({'id': id, 'x': x, 'y': y - 1})
 
     snake_to_score = defaultdict(float)
     for i in board:
@@ -196,7 +199,7 @@ def get_length_score(game_state: dict) -> dict:
 
     return snake_to_score
 
-def rec_find_move(game_state: dict, snakes: list, possible_moves: list):
+def rec_find_move(game_state: dict, next_snake: list):
     '''
     parameter:
         game state: full json dict of game data
@@ -204,16 +207,17 @@ def rec_find_move(game_state: dict, snakes: list, possible_moves: list):
 
     returns tuple of (list of moves, best score dict possible in tree)
     '''
+
     # Base case
     if not next_snake:
         return ([], score_game_board(game_state))
 
-    curr_snake = snakes[0]
+    snake_id = next_snake[0]
 
     best_move_arr = []
     best_move_score = defaultdict(float)
 
-    for move in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+    for move in MOVES:
         try:
             # Recurse when snake moves
             new_game_state = move_snake(game_state, snake_id, move)
@@ -258,18 +262,7 @@ def find_move(game_state):
 
     print(res)
 
-    move_to_text = {
-        (0, 1): 'up',
-        (0, -1): 'down',
-        (1, 0): 'right',
-        (-1, 0): 'left'
-    }
-
     # Extracts text move for self snake
     for move in res[0]:
         if move[0] == self_id:
-            return move_to_text[move[1]]
-
-possible_moves = MOVES
-
-rec_find_move(game_state, game_state['board']['snakes'] * 5)
+            return move[1]['move']
