@@ -18,6 +18,11 @@ def move_snake(old_game_state: dict, snake_id: str, move: dict) -> dict:
     # Copies state
     game_state = deepcopy(old_game_state)
 
+    # find current snake
+    for snake in game_state['board']['snakes']:
+        if snake['id'] == snake_id:
+            curr_snake = snake    
+
     # Creates set of coords on board that cause death
     hazards = set()
     for h in game_state['board']['hazards']:
@@ -26,43 +31,48 @@ def move_snake(old_game_state: dict, snake_id: str, move: dict) -> dict:
         for b in snake['body']:
             hazards.add(tuple(b.values()))
 
-    # Searches for snake in board
-    for snake in game_state['board']['snakes']:
-        if snake['id'] == snake_id:
-            # Moves snake's head
-            snake['head'] = move['transform'](snake['head'])
+        if snake['id'] != snake_id and snake['length'] >= curr_snake['length']:
+            head_x = snake['head']['x']
+            head_y = snake['head']['y']
+            hazards.add((head_x + 1, head_y))
+            hazards.add((head_x - 1, head_y))
+            hazards.add((head_x, head_y + 1))
+            hazards.add((head_x, head_y - 1))
 
-            # Verifies head not in neck
-            if len(snake['body']) >= 2 and snake['head'] == snake['body'][1]:
-                raise Exception("Hit Neck")
+    # Moves snake's head
+    curr_snake['head'] = move['transform'](curr_snake['head'])
 
-            # Verifies head not in hazard
-            if tuple(snake['head'].values()) in hazards:
-                raise Exception("Hit Hazard")
+    # Verifies head not in neck
+    if len(curr_snake['body']) >= 2 and curr_snake['head'] == curr_snake['body'][1]:
+        raise Exception("Hit Neck")
 
-            # Subtacts health
-            snake['health'] -= 1
-            # Handles food logic
-            if snake['head'] in game_state['board']['food']:
-                snake['health'] = 100
-                game_state['board']['food'].remove(snake['head'])
+    # Verifies head not in hazard
+    if tuple(curr_snake['head'].values()) in hazards:
+        raise Exception("Hit Hazard")
 
-            # Verifies health is not empty
-            if snake['health'] < 1:
-                raise Exception("Out of health")
+    # Subtacts health
+    curr_snake['health'] -= 1
+    # Handles food logic
+    if curr_snake['head'] in game_state['board']['food']:
+        curr_snake['health'] = 100
+        game_state['board']['food'].remove(curr_snake['head'])
 
-            # Verifies head not out of bounds
-            if snake['head']['x'] < 0 or game_state['board']['width'] <= snake['head']['x']:
-                raise Exception("Out of bounds")
-            if snake['head']['y'] < 0 or game_state['board']['height'] <= snake['head']['y']:
-                raise Exception("Out of bounds")
+    # Verifies health is not empty
+    if curr_snake['health'] < 1:
+        raise Exception("Out of health")
 
-            # Updates body coordinates
-            snake["body"] = \
-                [{'x': snake['head']['x'], 'y': snake['head']['y']}] + \
-                snake["body"][:-1]
+    # Verifies head not out of bounds
+    if curr_snake['head']['x'] < 0 or game_state['board']['width'] <= curr_snake['head']['x']:
+        raise Exception("Out of bounds")
+    if curr_snake['head']['y'] < 0 or game_state['board']['height'] <= curr_snake['head']['y']:
+        raise Exception("Out of bounds")
 
-            return game_state
+    # Updates body coordinates
+    curr_snake["body"] = \
+        [{'x': curr_snake['head']['x'], 'y': curr_snake['head']['y']}] + \
+        curr_snake["body"][:-1]
+
+    return game_state
 
 
 def delete_snake(old_game_state: dict, snake_id: str) -> dict:
@@ -148,23 +158,18 @@ def get_flood_score(game_state: dict) -> dict:
 
         board[x][y] = id
 
-        valid_moves = filter_bad_moves(id, {'x':x, 'y':y}, MOVES, game_state['board'])
 
-        for move in valid_moves:
-            q.append(move['transform']({'x':x, 'y':y}))
-            q[-1]['id'] = id
+        if is_valid(x + 1, y):
+            q.append({'id': id, 'x': x + 1, 'y': y})
 
-        # if is_valid(x + 1, y):
-        #     q.append({'id': id, 'x': x + 1, 'y': y})
+        if is_valid(x - 1, y):
+            q.append({'id': id, 'x': x - 1, 'y': y})
 
-        # if is_valid(x - 1, y):
-        #     q.append({'id': id, 'x': x - 1, 'y': y})
+        if is_valid(x, y + 1):
+            q.append({'id': id, 'x': x, 'y': y + 1})
 
-        # if is_valid(x, y + 1):
-        #     q.append({'id': id, 'x': x, 'y': y + 1})
-
-        # if is_valid(x, y - 1):
-        #     q.append({'id': id, 'x': x, 'y': y - 1})
+        if is_valid(x, y - 1):
+            q.append({'id': id, 'x': x, 'y': y - 1})
 
     snake_to_score = defaultdict(float)
     for i in board:
@@ -258,7 +263,7 @@ def find_move(game_state):
             continue
         snake_ids.append(snake['id'])
 
-    res = rec_find_move(game_state, snake_ids * 1)
+    res = rec_find_move(game_state, (snake_ids * 10)[:5])
 
     print(res)
 

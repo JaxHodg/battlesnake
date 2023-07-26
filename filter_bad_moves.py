@@ -1,4 +1,4 @@
-def filter_border_collision(curr_snake: list, possible_moves: list, board: dict):
+def filter_border_collision(curr_snake: dict, possible_moves: list, board: dict):
     remove = []
     for move in possible_moves:
         new_position = move['transform'](curr_snake)
