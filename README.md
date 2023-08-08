@@ -1,59 +1,31 @@
-# Battlesnake Python Starter Project
+# JNR - BattleSnake Algorithm for the RBC Summer 2023 Tournament 🐍
 
-An official Battlesnake template written in Python. Get started at [play.battlesnake.com](https://play.battlesnake.com).
+![Battlesnake Logo](rbc-battlesnake-banner.png)
 
-![Battlesnake Logo](https://media.battlesnake.com/social/StarterSnakeGitHubRepos_Python.png)
+## Tournament Results: 4th Place 🏆
 
-This project is a great starting point for anyone wanting to program their first Battlesnake in Python. It can be run locally or easily deployed to a cloud provider of your choosing. See the [Battlesnake API Docs](https://docs.battlesnake.com/api) for more detail. 
+We're proud to share that our algorithm performed well in the Experienced bracket of RBC Summer 2023 Tournament and secured the **4th place** position! 🥳 The final bracket and game replays are available [here](https://play.battlesnake.com/account/tournament/rbc-summer-2023-experienced#brackets).
 
-[![Run on Replit](https://repl.it/badge/github/BattlesnakeOfficial/starter-snake-python)](https://replit.com/@Battlesnake/starter-snake-python)
+## Algorithm Used: Minimax 🤖
 
-## Technologies Used
+We utilized the **minimax algorithm** as the core of our strategy. Minimax is a decision-making algorithm that's commonly used in two-player games. It helps us make optimal decisions by considering possible outcomes of our moves and the opponent's moves. This enables our snake to think several steps ahead and make the best choice in any given situation.
 
-This project uses [Python 3](https://www.python.org/) and [Flask](https://flask.palletsprojects.com/). It also comes with an optional [Dockerfile](https://docs.docker.com/engine/reference/builder/) to help with deployment.
+## Scoring Algorithm: Floodfill 🌊
 
-## Run Your Battlesnake
+The heart of our scoring system is the **floodfill algorithm**. Floodfill is responsible for evaluating the game board and determining the value of each possible move. It helps us calculate the potential areas of control and the safety of different paths on the board. This information is crucial for our snake to choose the move that maximizes its position while minimizing risk.
 
-Install dependencies using pip
+## How to Run the Algorithm
 
-```sh
-pip install -r requirements.txt
-```
+1. Clone this repository to your local machine.
+2. Install the required dependencies using `pip install -r requirements.txt`.
+3. Run the `main.py` file to see our algorithm in action at [localhost:80](http://localhost:80).
 
-Start your Battlesnake
+## Acknowledgments
 
-```sh
-python main.py
-```
+We'd like to express our gratitude to the organizers of the RBC Summer 2023 BattleSnake Tournament for providing a platform to showcase our algorithm. It was an incredible experience, and we're looking forward to participating in more such events in the future.
 
-You should see the following output once it is running
+If you have any questions, suggestions, or just want to chat about Battlesnake strategies, don't hesitate to contact us.
 
-```sh
-Running your Battlesnake at http://0.0.0.0:8000
- * Serving Flask app 'My Battlesnake'
- * Debug mode: off
-```
+Happy coding and snake battling! 🚀🐍
 
-Open [localhost:8000](http://localhost:8000) in your browser and you should see
-
-```json
-{"apiversion":"1","author":"","color":"#888888","head":"default","tail":"default"}
-```
-
-## Play a Game Locally
-
-Install the [Battlesnake CLI](https://github.com/BattlesnakeOfficial/rules/tree/main/cli)
-* You can [download compiled binaries here](https://github.com/BattlesnakeOfficial/rules/releases)
-* or [install as a go package](https://github.com/BattlesnakeOfficial/rules/tree/main/cli#installation) (requires Go 1.18 or higher)
-
-Command to run a local game
-
-```sh
-battlesnake play -W 11 -H 11 --name 'Python Starter Project' --url http://localhost:8000 -g solo --browser
-```
-
-## Next Steps
-
-Continue with the [Battlesnake Quickstart Guide](https://docs.battlesnake.com/quickstart) to customize and improve your Battlesnake's behavior.
-
-**Note:** To play games on [play.battlesnake.com](https://play.battlesnake.com) you'll need to deploy your Battlesnake to a live web server OR use a port forwarding tool like [ngrok](https://ngrok.com/) to access your server locally.
+**Team JNR**
