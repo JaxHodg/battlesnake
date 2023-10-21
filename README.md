@@ -4,7 +4,7 @@
 
 ## Tournament Results: 4th Place 🏆
 
-We're proud to share that our algorithm performed well in the Experienced bracket of RBC Summer 2023 Tournament and secured the **4th place** position! 🥳 The final bracket and game replays are available [here](https://play.battlesnake.com/account/tournament/rbc-summer-2023-experienced#brackets).
+We're proud to share that our algorithm performed well in the Experienced bracket of RBC Summer 2023 Tournament and secured the **4th place** position in experienced teams! 🥳 The final bracket and game replays are available [here](https://play.battlesnake.com/account/tournament/rbc-summer-2023-experienced#brackets).
 
 ## Algorithm Used: Minimax 🤖
 
@@ -13,6 +13,9 @@ We utilized the **minimax algorithm** as the core of our strategy. Minimax is a 
 ## Scoring Algorithm: Floodfill 🌊
 
 The heart of our scoring system is the **floodfill algorithm**. Floodfill is responsible for evaluating the game board and determining the value of each possible move. It helps us calculate the potential areas of control and the safety of different paths on the board. This information is crucial for our snake to choose the move that maximizes its position while minimizing risk.
+
+## Hosted on Amazon EC2
+Hosted on Amazon Elastic Compute Cloud to compute the algorithm and predict multiple steps ahead with optimal response time. 
 
 ## How to Run the Algorithm
 
